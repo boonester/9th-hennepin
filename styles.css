@@ -1,0 +1,8 @@
+@font-face {
+    font-family: special;
+    src: url(assets/SpecialElite.ttf);
+}
+h1 {
+    font-family: special;
+    font-size: 3em;
+}
