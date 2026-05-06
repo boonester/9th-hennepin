@@ -2,6 +2,18 @@
     font-family: special;
     src: url(assets/SpecialElite.ttf);
 }
+html{
+    box-sizing: border-box;
+    font-size: 100%;
+}
+body{
+    margin: auto;
+    padding: 0;
+}
+canvas{
+    display: block;
+    margin: auto;
+}
 h1 {
     font-family: special;
     font-size: 3em;
