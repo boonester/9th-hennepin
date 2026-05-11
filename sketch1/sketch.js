@@ -36,7 +36,7 @@ function setup() {
   imageMode(CENTER);
   imgX = 70;
   imgY = 350;
-  song.loop()
+  // song.loop()
   vox.play()
   textFont(special)
   setTimeout(() => {

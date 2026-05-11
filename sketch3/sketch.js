@@ -12,11 +12,12 @@ let line11= false;
 let line12 = false;
 let line13 = false;
 let line14 = false;
-
+let line15 = false;
+let line16 = false;
 
 
 function preload(){
-  sound = loadSound ("sect3 auto.mp3")
+  sound = loadSound ("sect3 temp.mp3")
   vox = loadSound ("sect3 man.mp3")
   special = loadFont ("SpecialElite.ttf")
 }
@@ -83,6 +84,12 @@ function setup() {
        line13 = !line13
      line14 = !line14
   }, 14000);
+  setTimeout(() => {
+     line15 = !line15
+  }, 14500);
+  setTimeout(() => {
+     line16 = !line16
+  }, 16000);
 }
 
 function draw() {
@@ -170,6 +177,19 @@ function draw() {
     textFont(special);
     textSize (25)
     text("and dutch is dead on his feet.", 40,350)
+  }
+       if (line15){
+    fill(255);
+    textFont(special);
+    textSize (25)
+    text("and all the rooms they smell like diesel", 40,150)
+  }
+         if (line16){
+    fill(255);
+    textFont(special);
+    textSize (25)
+    text("and you take on the dreams of", 40,250)
+    text("the ones who have slept there", 40,300)       
   }
   
 }
