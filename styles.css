@@ -2,32 +2,48 @@
     font-family: special;
     src: url(assets/SpecialElite.ttf);
 }
-html{
+
+html {
     box-sizing: border-box;
     font-size: 100%;
 }
-body{
+
+body {
     margin: auto;
     padding: 0;
 }
-canvas{
+
+canvas {
     display: block;
     margin: auto;
 }
+
 h1 {
     font-family: special;
     font-size: 3em;
     color: white;
-  text-align: center;
+    text-align: center;
 }
+
 body {
     background-color: black;
 }
-a{
+
+a {
     font-family: special;
     font-size: 2em;
     color: white;
     text-align: center;
     display: block;
     line-height: 2em;
+}
+
+#sketch-container {
+    margin-top: 20px;
+}
+
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
 }

@@ -4,21 +4,261 @@
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>9th & hennepin</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="styles.css">
-       <script src="js/app.js" defer></script>
-    </head>
-    <body>
-        <h1>9th & hennepin</h1>
-        <a href="sketch1/index.html">sketch 1 test</a>
-        <a href="sketch2/index.html">sketch 2 test</a>
-        <a href="sketch3/index.html">sketch 3 test</a>
-        <a href="about.html">about</a>
-        <script src="" async defer></script>
-    </body>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>9th & hennepin</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+   <script src="https://cdn.jsdelivr.net/npm/p5@1.7.0/lib/p5.min.js"></script>
+</head>
+
+<body>
+    <h1>9th & hennepin</h1>
+    <div>
+        <button id="prevBtn">Previous</button>
+        <button id="nextBtn">Next</button>
+    </div>
+    <div id="sketch-container"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sketches = [
+                function (sketch) {
+                    const DROP_X = 250; // x position of the drop zone (from left edge)
+                    const DROP_Y = 200; // y position of the drop zone (from top edge)
+                    const DROP_W = 160; // width of the drop zone
+                    const DROP_H = 50; // height of the drop zone
+
+                    let img, sound, song, vox, special, c;
+                    let imgX, imgY, dragging, offsetX, offsetY, isPlaying, showStart, showEnd, donut, fade;
+
+                    // load in assets
+                    sketch.preload = function () {
+                        img = sketch.loadImage("small donut.png");
+                        sound = sketch.loadSound("sect1 man.mp3");
+                        song = sketch.loadSound("instrumental.mp3");
+                        vox = sketch.loadSound("sect 1 auto.mp3");
+                        special = sketch.loadFont("SpecialElite.ttf");
+                        c = sketch.loadImage("cursor.png");
+                    };
+
+                    sketch.setup = function () {
+                        sketch.createCanvas(600, 400);
+                        sketch.imageMode(sketch.CENTER);
+                        imgX = 70;
+                        imgY = 350;
+                        vox.play();
+                        sketch.textFont(special);
+                        setTimeout(() => {
+                            showStart = true;
+                        }, 8000);
+                        setTimeout(() => {
+                            showEnd = true;
+                        }, 11000);
+                        setTimeout(() => {
+                            donut = true;
+                        }, 11000);
+                        sketch.noCursor();
+                        fade = 0;
+                    };
+
+                    sketch.draw = function () {
+                        sketch.background(0);
+                        let overDrop = isOverDrop(imgX, imgY);
+                        sketch.strokeWeight(2);
+                        if (overDrop) {
+                        } else {
+                            sketch.fill("rgba(255,255,255)");
+                        }
+                        sketch.textAlign(sketch.LEFT);
+                        sketch.textSize(25);
+                        if (showStart) {
+                            sketch.text("well it's 9th and hennepin.", 20, 50);
+                        }
+                        if (showEnd) {
+                            sketch.text("all the                have names", 170, 230);
+                            sketch.text("that sound like prostitutes.", 150, 285);
+                            sketch.stroke(2);
+                        }
+                        if (donut) {
+                            sketch.image(img, imgX, imgY);
+                        }
+                        sketch.image(c, sketch.mouseX, sketch.mouseY);
+                    };
+
+                    function isOverDrop(cx, cy) {
+                        return (
+                            cx > DROP_X && cx < DROP_X + DROP_W && cy > DROP_Y && cy < DROP_Y + DROP_H
+                        );
+                    }
+
+                    sketch.mousePressed = function () {
+                        if (
+                            sketch.mouseX > imgX - img.width / 2 &&
+                            sketch.mouseX < imgX + img.width / 2 &&
+                            sketch.mouseY > imgY - img.height / 2 &&
+                            sketch.mouseY < imgY + img.height / 2
+                        ) {
+                            dragging = true;
+                            offsetX = sketch.mouseX - imgX;
+                            offsetY = sketch.mouseY - imgY;
+                        }
+                    };
+
+                    sketch.mouseDragged = function () {
+                        if (dragging) {
+                            imgX = sketch.mouseX - offsetX;
+                            imgY = sketch.mouseY - offsetY;
+
+                            if (isOverDrop(imgX, imgY) && !isPlaying) {
+                                sound.play();
+                                isPlaying = true;
+                            } else if (!isOverDrop(imgX, imgY) && isPlaying) {
+                                sound.stop();
+                                isPlaying = false;
+                            }
+                        }
+                    };
+
+                    sketch.mouseReleased = function () {
+                        dragging = false;
+                    };
+                },
+
+                function (sketch) {
+                    let start1;
+                    let start2;
+                    let start3;
+                    let start4;
+                    let start5;
+                    let isPlaying = false;
+                    let currentImage;
+                    let umbrella;
+                    let deadBird;
+                    let showText = false;
+                    let op;
+                    let hasClicked = false;
+                    let showMoreText = false;
+                    let moreText = false;
+                    let special;
+                    let sound;
+                    let vox;
+
+                    sketch.preload = function () {
+                        special = sketch.loadFont("SpecialElite.ttf");
+                        umbrella = sketch.loadImage("live bird-1.png");
+                        deadBird = sketch.loadImage("dead bird-1.png");
+                        sound = sketch.loadSound("sect2 auto.mp3");
+                        vox = sketch.loadSound("sect2 man.mp3");
+                    };
+
+                    sketch.setup = function () {
+                        sketch.createCanvas(600, 400);
+                        sketch.imageMode(sketch.CENTER);
+                        sketch.textSize(20);
+                        op = 255;
+                        currentImage = umbrella;
+                        sound.play();
+                        setTimeout(() => {
+                            start1 = true;
+                        }, 500);
+                        setTimeout(() => {
+                            start2 = true;
+                        }, 2500);
+                        setTimeout(() => {
+                            start3 = true;
+                        }, 4000);
+                        setTimeout(() => {
+                            start4 = true;
+                        }, 7000);
+                        setTimeout(() => {
+                            start5 = true;
+                        }, 2000);
+                    };
+
+                    sketch.draw = function () {
+                        sketch.background(0);
+                        sketch.fill(op);
+                        sketch.textFont(special);
+                        if (start1) {
+                            sketch.text("and the moon's teeth marks", 20, 50);
+                        }
+                        if (start2) {
+                            sketch.text("are on the sky", 40, 70);
+                        }
+                        if (start3) {
+                            sketch.text("like a tarp thrown all over this", 60, 100);
+                        }
+                        if (start4) {
+                            sketch.image(currentImage, 100, 250);
+                        }
+                        if (showText) {
+                            sketch.fill(255);
+                            sketch.textFont(special);
+                            sketch.text("And the broken umbrellas", 20, 50);
+                            sketch.text("like dead birds", 40, 70);
+                        }
+                        if (showMoreText) {
+                            sketch.fill(255);
+                            sketch.textFont(special);
+                            sketch.text("the steam comes out of the grill", 200, 100);
+                        }
+                        if (moreText) {
+                            sketch.fill(255);
+                            sketch.textFont(special);
+                            sketch.text("like the whole goddamned town's ready to blow", 60, 125);
+                        }
+                    };
+
+                    sketch.mouseClicked = function () {
+                        if (!hasClicked) {
+                            if (currentImage === umbrella) {
+                                currentImage = deadBird;
+                            }
+                            op = op === 255 ? 0 : 255;
+                            showText = !showText;
+                            vox.play();
+                            hasClicked = true;
+                            setTimeout(() => {
+                                showMoreText = !showMoreText;
+                            }, 2300);
+                            setTimeout(() => {
+                                moreText = !moreText;
+                            }, 4100);
+                        }
+                    };
+                }
+            ];
+
+            let currentSketchIndex = 0;
+            let currentSketch;
+
+            function loadSketch(index) {
+                if (index < 0) index = sketches.length - 1;
+                if (index >= sketches.length) index = 0;
+
+                if (currentSketch) {
+                    currentSketch.remove();
+                }
+
+                const container = document.getElementById('sketch-container');
+                currentSketch = new p5(sketches[index], container);
+                currentSketchIndex = index;
+            }
+
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                loadSketch(currentSketchIndex - 1);
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                loadSketch(currentSketchIndex + 1);
+            });
+
+            loadSketch(currentSketchIndex);
+        });
+    </script>
+</body>
+
 </html>
