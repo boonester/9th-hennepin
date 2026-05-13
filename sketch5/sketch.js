@@ -11,7 +11,7 @@ let img;
 let imgX,imgY;
 
 function preload(){
-  tear = loadImage("tear.png")
+  tear = loadImage("tear-1.png")
   tsound = loadSound("tattoosound.mp3")
   special = loadFont("SpecialElite.ttf");
   sound = loadSound("sect5 auto.mp3");

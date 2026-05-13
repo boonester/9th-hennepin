@@ -12,251 +12,1345 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="styles.css">
-   <script src="https://cdn.jsdelivr.net/npm/p5@1.7.0/lib/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.7.0/lib/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.7.0/lib/addons/p5.sound.min.js"></script>
 </head>
 
 <body>
-    <h1>9th & hennepin</h1>
-    <div>
+    <!-- <h1>9th & hennepin</h1> -->
+    <audio id="bgMusic" src="sketch1/instrumental.mp3" loop></audio>
+    <div class="nav">
+        <button id="startBtn">Start</button>
         <button id="prevBtn">Previous</button>
         <button id="nextBtn">Next</button>
+        <img id="sign" src="assets/sign.png" alt="">
     </div>
     <div id="sketch-container"></div>
+    <!-- after learning I could make an array with sketches, i used ai to turn all of my global p5js code into instances -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sketches = [
-                function (sketch) {
-                    const DROP_X = 250; // x position of the drop zone (from left edge)
-                    const DROP_Y = 200; // y position of the drop zone (from top edge)
-                    const DROP_W = 160; // width of the drop zone
-                    const DROP_H = 50; // height of the drop zone
+        const sketches = [
+            function (sketch) {
+                const DROP_X = 250; // x position of the drop zone (from left edge)
+                const DROP_Y = 200; // y position of the drop zone (from top edge)
+                const DROP_W = 160; // width of the drop zone
+                const DROP_H = 50; // height of the drop zone
 
-                    let img, sound, song, vox, special, c;
-                    let imgX, imgY, dragging, offsetX, offsetY, isPlaying, showStart, showEnd, donut, fade;
+                let img, sound, song, vox, special, c;
+                let imgX, imgY, dragging, offsetX, offsetY, isPlaying, showStart, showEnd, donut, fade;
 
-                    // load in assets
-                    sketch.preload = function () {
-                        img = sketch.loadImage("small donut.png");
-                        sound = sketch.loadSound("sect1 man.mp3");
-                        song = sketch.loadSound("instrumental.mp3");
-                        vox = sketch.loadSound("sect 1 auto.mp3");
-                        special = sketch.loadFont("SpecialElite.ttf");
-                        c = sketch.loadImage("cursor.png");
-                    };
+                // load in assets
+                sketch.preload = function () {
+                    img = sketch.loadImage("assets/small donut.png");
+                    sound = sketch.loadSound("sketch1/sect1 man.mp3");
+                    song = sketch.loadSound("sketch1/instrumental.mp3");
+                    vox = sketch.loadSound("sketch1/sect 1 auto.mp3");
+                    special = sketch.loadFont("sketch1/SpecialElite.ttf");
+    
+                };
 
-                    sketch.setup = function () {
-                        sketch.createCanvas(600, 400);
-                        sketch.imageMode(sketch.CENTER);
-                        imgX = 70;
-                        imgY = 350;
-                        vox.play();
+                sketch.setup = function () {
+                    sketch.createCanvas(600, 400);
+                    // place the image in the center of the canvas to start
+                    sketch.imageMode(sketch.CENTER);
+                    imgX = 70;
+                    imgY = 350;
+                    // song.loop()
+                    vox.play();
+                    sketch.textFont(special);
+                    setTimeout(() => {
+                        showStart = true;
+                    }, 8000);
+                    setTimeout(() => {
+                        showEnd = true;
+                    }, 11000);
+                    setTimeout(() => {
+                        donut = true;
+                    }, 11000);
+        
+                    fade = 0;
+                };
+
+                sketch.draw = function () {
+                    sketch.background(0);
+                    let overDrop = isOverDrop(imgX, imgY);
+                    sketch.strokeWeight(2);
+                    if (overDrop) {
+
+                    } else {
+                        sketch.fill("rgba(255,255,255)");
+                    }
+                    sketch.textAlign(sketch.LEFT);
+                    sketch.fill(255);
+                    sketch.textSize(25);
+                    if (showStart) {
+                        sketch.text("well it's 9th and hennepin.", 20, 50);
+                    }
+                    if (showEnd) {
+                        sketch.text("all the                have names", 170, 230);
+                        sketch.text("that sound like prostitutes.", 150, 285);
+                        sketch.stroke(2);
+                    }
+                    if (donut) {
+                        sketch.image(img, imgX, imgY);
+                    }
+                   
+                };
+
+                function isOverDrop(cx, cy) {
+                    return (
+                        cx > DROP_X && cx < DROP_X + DROP_W && cy > DROP_Y && cy < DROP_Y + DROP_H
+                    );
+                }
+
+                sketch.mousePressed = function () {
+                    if (
+                        sketch.mouseX > imgX - img.width / 2 &&
+                        sketch.mouseX < imgX + img.width / 2 &&
+                        sketch.mouseY > imgY - img.height / 2 &&
+                        sketch.mouseY < imgY + img.height / 2
+                    ) {
+                        dragging = true;
+                        // Record how far the mouse is from the image center so the image
+                        // doesn't snap its center to the cursor on pickup
+                        offsetX = sketch.mouseX - imgX;
+                        offsetY = sketch.mouseY - imgY;
+                    }
+                };
+
+                // mouseDragged() fires every frame the mouse moves while a button is held
+                sketch.mouseDragged = function () {
+                    if (dragging) {
+                        // Move the image center to follow the mouse, preserving the grab offset
+                        imgX = sketch.mouseX - offsetX;
+                        imgY = sketch.mouseY - offsetY;
+
+                        if (isOverDrop(imgX, imgY) && !isPlaying) {
+                            // Image center just entered the drop zone — start looping the music
+                            sound.play();
+                            isPlaying = true;
+                        } else if (!isOverDrop(imgX, imgY) && isPlaying) {
+                            // Image center just left the drop zone — stop the music
+                            sound.stop();
+                            isPlaying = false;
+                        }
+                    }
+                };
+
+                // mouseReleased() fires once when the mouse button is let go
+                sketch.mouseReleased = function () {
+                    dragging = false; // stop tracking the drag regardless of where the image lands
+                };
+            },
+
+            function (sketch) {
+                let start1;
+                let start2;
+                let start3;
+                let start4;
+                let start5;
+                let isPlaying = false;
+                let currentImage;
+                let umbrella;
+                let deadBird;
+                let showText = false;
+                let op;
+                let hasClicked = false;
+                let showMoreText = false;
+                let moreText = false;
+                let special;
+                let sound;
+                let vox;
+
+                sketch.preload = function () {
+                    special = sketch.loadFont("sketch2/SpecialElite.ttf");
+                    umbrella = sketch.loadImage("assets/umbrella.png");
+                    deadBird = sketch.loadImage("assets/deadest bird.png");
+                    sound = sketch.loadSound("sketch2/sect2 auto.mp3");
+                    vox = sketch.loadSound("sketch2/sect2 man.mp3");
+                     c = sketch.loadImage("sketch1/cursor.png");
+                };
+
+                sketch.setup = function () {
+        
+                    sketch.createCanvas(600, 400);
+                    sketch.imageMode(sketch.CENTER);
+                    sketch.textSize(20);
+                    op = 255;
+                    currentImage = umbrella;
+                    showText = false;
+                    showMoreText = false;
+                    moreText = false;
+                    hasClicked = false;
+                    start1 = false;
+                    start2 = false;
+                    start3 = false;
+                    start4 = false;
+                    start5 = false;
+                    sound.play();
+                    setTimeout(() => {
+                        start1 = true;
+                    }, 500);
+                    setTimeout(() => {
+                        start2 = true;
+                    }, 2500);
+                    setTimeout(() => {
+                        start3 = true;
+                    }, 4000);
+                    setTimeout(() => {
+                        start4 = true;
+                    }, 7000);
+                    setTimeout(() => {
+                        start5 = true;
+                    }, 2000);
+                };
+
+                sketch.draw = function () {
+                    sketch.background(0);
+                    sketch.fill(op);
+                    sketch.textFont(special);
+                    if (start1) {
+                        sketch.text("and the moon's teeth marks", 20, 50);
+                    }
+                    if (start2) {
+                        sketch.text("are on the sky", 40, 70);
+                    }
+                    if (start3) {
+                        sketch.text("like a tarp thrown all over this", 60, 100);
+                    }
+                    if (start4) {
+                        sketch.image(currentImage, 100, 250);
+                    }
+                    if (showText) {
+                        sketch.fill(255);
                         sketch.textFont(special);
-                        setTimeout(() => {
-                            showStart = true;
-                        }, 8000);
-                        setTimeout(() => {
-                            showEnd = true;
-                        }, 11000);
-                        setTimeout(() => {
-                            donut = true;
-                        }, 11000);
-                        sketch.noCursor();
-                        fade = 0;
-                    };
+                        sketch.text("And the broken umbrellas", 20, 50);
+                        sketch.text("like dead birds", 40, 70);
+                    }
+                    if (showMoreText) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.text("the steam comes out of the grill", 200, 100);
+                    }
+                    if (moreText) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.text("like the whole goddamned town's ready to blow", 60, 125);
+                    }
+                 
+                };
 
-                    sketch.draw = function () {
-                        sketch.background(0);
-                        let overDrop = isOverDrop(imgX, imgY);
-                        sketch.strokeWeight(2);
-                        if (overDrop) {
+                sketch.mouseClicked = function () {
+                    if (!hasClicked) {
+                        console.log("This only runs once!");
+                        if (currentImage === umbrella) {
+                            currentImage = deadBird;
+                        }
+                        if (op === 255) {
+                            op = 0;
                         } else {
-                            sketch.fill("rgba(255,255,255)");
+                            op = 255;
                         }
-                        sketch.textAlign(sketch.LEFT);
-                        sketch.textSize(25);
-                        if (showStart) {
-                            sketch.text("well it's 9th and hennepin.", 20, 50);
-                        }
-                        if (showEnd) {
-                            sketch.text("all the                have names", 170, 230);
-                            sketch.text("that sound like prostitutes.", 150, 285);
-                            sketch.stroke(2);
-                        }
-                        if (donut) {
-                            sketch.image(img, imgX, imgY);
-                        }
-                        sketch.image(c, sketch.mouseX, sketch.mouseY);
-                    };
+                        showText = !showText;
+                        vox.play();
+                        hasClicked = true;
+                        setTimeout(() => {
+                            showMoreText = !showMoreText;
+                        }, 2300);
+                        setTimeout(() => {
+                            moreText = !moreText;
+                        }, 4100);
+                    }
+                };
+            },
+            function (sketch) {
+                let sound, special, bed, dream;
+                let D, R, E, A, M, S;
+                let line1;
+                let line2 = false;
+                let line3 = false;
+                let line4 = false;
+                let line5 = false;
+                let line6 = false;
+                let line7 = false;
+                let line8 = false;
+                let line9 = false;
+                let line10 = false;
+                let line11 = false;
+                let line12 = false;
+                let line13 = false;
+                let line14 = false;
+                let line15 = false;
+                let line16 = false;
+                let line16B = false;
+                let vox;
+                let checkD = false,
+                    checkR = false,
+                    checkE = false,
+                    checkA = false,
+                    checkM = false,
+                    checkS = false;
+                let draggingD = false,
+                    draggingR = false,
+                    draggingE = false,
+                    draggingA = false,
+                    draggingM = false,
+                    draggingS = false;
+                let DimgX, DimgY, RimgX, RimgY, EimgX, EimgY, AimgX, AimgY, MimgX, MimgY, SimgX, SimgY;
+                let offsetX, offsetY;
+                let isPlaying = false;
+                const DDROP_X = 305;
+                const DDROP_Y = 70;
+                const DDROP_W = 15;
+                const DDROP_H = 35;
 
-                    function isOverDrop(cx, cy) {
-                        return (
-                            cx > DROP_X && cx < DROP_X + DROP_W && cy > DROP_Y && cy < DROP_Y + DROP_H
-                        );
+                const RDROP_X = 330;
+                const RDROP_Y = 70;
+                const RDROP_W = 15;
+                const RDROP_H = 35;
+
+                const EDROP_X = 355;
+                const EDROP_Y = 70;
+                const EDROP_W = 15;
+                const EDROP_H = 35;
+
+                const ADROP_X = 380;
+                const ADROP_Y = 70;
+                const ADROP_W = 15;
+                const ADROP_H = 35;
+
+                const MDROP_X = 405;
+                const MDROP_Y = 70;
+                const MDROP_W = 15;
+                const MDROP_H = 35;
+
+                const SDROP_X = 430;
+                const SDROP_Y = 70;
+                const SDROP_W = 15;
+                const SDROP_H = 35;
+
+                sketch.preload = function () {
+                    sound = sketch.loadSound("sketch3/sect3 auto.mp3");
+                    vox = sketch.loadSound("sketch3/sect3 man.mp3");
+                    special = sketch.loadFont("sketch3/SpecialElite.ttf");
+                    bed = sketch.loadImage("sketch3/sleeper.png");
+                    dream = sketch.loadImage("sketch3/dream2.png");
+                    D = sketch.loadImage("sketch3/D.png");
+                    R = sketch.loadImage("sketch3/R.png");
+                    E = sketch.loadImage("sketch3/E.png");
+                    A = sketch.loadImage("sketch3/A.png");
+                    M = sketch.loadImage("sketch3/M.png");
+                    S = sketch.loadImage("sketch3/S.png");
+                     c = sketch.loadImage("sketch1/cursor.png");
+                };
+
+                sketch.setup = function () {
+            
+                    sketch.createCanvas(600, 400);
+                    sketch.imageMode(sketch.CENTER);
+                    sound.play();
+                    setTimeout(() => {
+                        line1 = !line1;
+                    }, 800);
+                    setTimeout(() => {
+                        line2 = !line2;
+                    }, 2500);
+                    setTimeout(() => {
+                        line3 = !line3;
+                    }, 2700);
+                    setTimeout(() => {
+                        line4 = !line4;
+                    }, 2900);
+                    setTimeout(() => {
+                        line5 = !line5;
+                    }, 3200);
+                    setTimeout(() => {
+                        line6 = !line6;
+                    }, 3500);
+                    setTimeout(() => {
+                        line7 = !line7;
+                    }, 5000);
+                    setTimeout(() => {
+                        line8 = !line8;
+                    }, 6000);
+                    setTimeout(() => {
+                        line9 = !line9;
+                    }, 6200);
+                    setTimeout(() => {
+                        line1 = !line1;
+                        line2 = !line2;
+                        line3 = !line3;
+                        line4 = !line4;
+                        line5 = !line5;
+                        line6 = !line6;
+                        line7 = !line7;
+                        line8 = !line8;
+                        line9 = !line9;
+                    }, 8250);
+                    setTimeout(() => {
+                        line10 = !line10;
+                    }, 9200);
+                    setTimeout(() => {
+                        line11 = !line11;
+                    }, 10000);
+                    setTimeout(() => {
+                        line12 = !line12;
+                    }, 10250);
+                    setTimeout(() => {
+                        line13 = !line13;
+                    }, 10500);
+                    setTimeout(() => {
+                        line14 = !line14;
+                    }, 11750);
+                    setTimeout(() => {
+                        line10 = !line10;
+                        line11 = !line11;
+                        line12 = !line12;
+                        line13 = !line13;
+                        line14 = !line14;
+                    }, 14000);
+                    setTimeout(() => {
+                        line15 = !line15;
+                    }, 14500);
+                    setTimeout(() => {
+                        line16 = !line16;
+                    }, 16000);
+                    DimgX = 150;
+                    DimgY = 235;
+                    RimgX = 250;
+                    RimgY = 235;
+                    EimgX = 50;
+                    EimgY = 235;
+                    AimgX = 450;
+                    AimgY = 235;
+                    MimgX = 350;
+                    MimgY = 235;
+                    SimgX = 550;
+                    SimgY = 235;
+                };
+
+                sketch.draw = function () {
+                    sketch.background(0);
+                    sketch.fill(255);
+
+                    if (line1) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and all the bricks are scarred", 20, 40);
+                    }
+                    if (line2) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("with", 40, 80);
+                    }
+                    if (line3) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("jail", 110, 80);
+                    }
+                    if (line4) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("house", 165, 80);
+                    }
+                    if (line5) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("tat", 190, 100);
+                    }
+                    if (line6) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("toos", 230, 100);
+                    }
+                    if (line7) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and everyone is behaving", 200, 200);
+                    }
+                    if (line8) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("like", 400, 250);
+                    }
+                    if (line9) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("dogs.", 450, 290);
+                    }
+                    if (line10) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("And the horses are", 350, 30);
+                    }
+                    if (line11) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("coming", 350, 80);
+                    }
+                    if (line12) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("down", 350, 120);
+                    }
+                    if (line13) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("violin road", 425, 120);
+                    }
+                    if (line14) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and dutch is dead on his feet.", 40, 350);
+                    }
+                    if (line15) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and all the rooms they smell like diesel", 40, 50);
+                    }
+                    if (line16) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and you take on the  _ _ _ _ _ _  of", 40, 100);
+                        sketch.text("the ones who have slept there.", 40, 150);
+                        sketch.image(bed, 0, 350);
+                        sketch.image(bed, 100, 350);
+                        sketch.image(bed, 200, 350);
+                        sketch.image(bed, 300, 350);
+                        sketch.image(bed, 400, 350);
+                        sketch.image(bed, 500, 350);
+                        sketch.image(dream, 60, 240);
+                        sketch.image(dream, 160, 240);
+                        sketch.image(dream, 260, 240);
+                        sketch.image(dream, 360, 240);
+                        sketch.image(dream, 460, 240);
+                        sketch.image(dream, 560, 240);
+                        sketch.image(D, DimgX, DimgY);
+                        sketch.image(R, RimgX, RimgY);
+                        sketch.image(E, EimgX, EimgY);
+                        sketch.image(A, AimgX, AimgY);
+                        sketch.image(M, MimgX, MimgY);
+                        sketch.image(S, SimgX, SimgY);
+                    }
+                    if (line16B) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and you take on the  D R E A M S  of", 40, 100);
+                        sketch.text("the ones who have slept there.", 40, 150);
+                        sketch.image(bed, 0, 350);
+                        sketch.image(bed, 100, 350);
+                        sketch.image(bed, 200, 350);
+                        sketch.image(bed, 300, 350);
+                        sketch.image(bed, 400, 350);
+                        sketch.image(bed, 500, 350);
+                        sketch.image(dream, 60, 240);
+                        sketch.image(dream, 160, 240);
+                        sketch.image(dream, 260, 240);
+                        sketch.image(dream, 360, 240);
+                        sketch.image(dream, 460, 240);
+                        sketch.image(dream, 560, 240);
+                
+                    }
+                };
+                // this section of this sketch I used ai to help me troubleshoot my code that I modified from the dragging demo to support multiple draggable items and drops
+                function isOverDropD(cx, cy) {
+                    return cx > DDROP_X && cx < DDROP_X + DDROP_W && cy > DDROP_Y && cy < DDROP_Y + DDROP_H;
+                }
+
+                function isOverDropR(cx, cy) {
+                    return cx > RDROP_X && cx < RDROP_X + RDROP_W && cy > RDROP_Y && cy < RDROP_Y + RDROP_H;
+                }
+
+                function isOverDropE(cx, cy) {
+                    return cx > EDROP_X && cx < EDROP_X + EDROP_W && cy > EDROP_Y && cy < EDROP_Y + EDROP_H;
+                }
+
+                function isOverDropA(cx, cy) {
+                    return cx > ADROP_X && cx < ADROP_X + ADROP_W && cy > ADROP_Y && cy < ADROP_Y + ADROP_H;
+                }
+
+                function isOverDropM(cx, cy) {
+                    return cx > MDROP_X && cx < MDROP_X + MDROP_W && cy > MDROP_Y && cy < MDROP_Y + MDROP_H;
+                }
+
+                function isOverDropS(cx, cy) {
+                    return cx > SDROP_X && cx < SDROP_X + SDROP_W && cy > SDROP_Y && cy < SDROP_Y + SDROP_H;
+                }
+
+                sketch.mousePressed = function () {
+                    if (!line16) return; // letters not visible yet
+
+                    if (sketch.mouseX > DimgX - D.width / 2 && sketch.mouseX < DimgX + D.width / 2 &&
+                        sketch.mouseY > DimgY - D.height / 2 && sketch.mouseY < DimgY + D.height / 2) {
+                        draggingD = true;
+                        offsetX = sketch.mouseX - DimgX;
+                        offsetY = sketch.mouseY - DimgY;
+                    }
+                    if (sketch.mouseX > RimgX - R.width / 2 && sketch.mouseX < RimgX + R.width / 2 &&
+                        sketch.mouseY > RimgY - R.height / 2 && sketch.mouseY < RimgY + R.height / 2) {
+                        draggingR = true;
+                        offsetX = sketch.mouseX - RimgX;
+                        offsetY = sketch.mouseY - RimgY;
+                    }
+                    if (sketch.mouseX > EimgX - E.width / 2 && sketch.mouseX < EimgX + E.width / 2 &&
+                        sketch.mouseY > EimgY - E.height / 2 && sketch.mouseY < EimgY + E.height / 2) {
+                        draggingE = true;
+                        offsetX = sketch.mouseX - EimgX;
+                        offsetY = sketch.mouseY - EimgY;
+                    }
+                    if (sketch.mouseX > AimgX - A.width / 2 && sketch.mouseX < AimgX + A.width / 2 &&
+                        sketch.mouseY > AimgY - A.height / 2 && sketch.mouseY < AimgY + A.height / 2) {
+                        draggingA = true;
+                        offsetX = sketch.mouseX - AimgX;
+                        offsetY = sketch.mouseY - AimgY;
+                    }
+                    if (sketch.mouseX > MimgX - M.width / 2 && sketch.mouseX < MimgX + M.width / 2 &&
+                        sketch.mouseY > MimgY - M.height / 2 && sketch.mouseY < MimgY + M.height / 2) {
+                        draggingM = true;
+                        offsetX = sketch.mouseX - MimgX;
+                        offsetY = sketch.mouseY - MimgY;
+                    }
+                    if (sketch.mouseX > SimgX - S.width / 2 && sketch.mouseX < SimgX + S.width / 2 &&
+                        sketch.mouseY > SimgY - S.height / 2 && sketch.mouseY < SimgY + S.height / 2) {
+                        draggingS = true;
+                        offsetX = sketch.mouseX - SimgX;
+                        offsetY = sketch.mouseY - SimgY;
+                    }
+                };
+
+                sketch.mouseDragged = function () {
+                    if (draggingD) {
+                        DimgX = sketch.mouseX - offsetX;
+                        DimgY = sketch.mouseY - offsetY;
+                    }
+                    if (draggingR) {
+                        RimgX = sketch.mouseX - offsetX;
+                        RimgY = sketch.mouseY - offsetY;
+                    }
+                    if (draggingE) {
+                        EimgX = sketch.mouseX - offsetX;
+                        EimgY = sketch.mouseY - offsetY;
+                    }
+                    if (draggingA) {
+                        AimgX = sketch.mouseX - offsetX;
+                        AimgY = sketch.mouseY - offsetY;
+                    }
+                    if (draggingM) {
+                        MimgX = sketch.mouseX - offsetX;
+                        MimgY = sketch.mouseY - offsetY;
+                    }
+                    if (draggingS) {
+                        SimgX = sketch.mouseX - offsetX;
+                        SimgY = sketch.mouseY - offsetY;
+                    }
+                };
+
+                sketch.mouseReleased = function () {
+                    // on release, check if each letter landed in its drop zone
+                    if (draggingD) {
+                        checkD = isOverDropD(DimgX, DimgY);
+                        draggingD = false;
+                    }
+                    if (draggingR) {
+                        checkR = isOverDropR(RimgX, RimgY);
+                        draggingR = false;
+                    }
+                    if (draggingE) {
+                        checkE = isOverDropE(EimgX, EimgY);
+                        draggingE = false;
+                    }
+                    if (draggingA) {
+                        checkA = isOverDropA(AimgX, AimgY);
+                        draggingA = false;
+                    }
+                    if (draggingM) {
+                        checkM = isOverDropM(MimgX, MimgY);
+                        draggingM = false;
+                    }
+                    if (draggingS) {
+                        checkS = isOverDropS(SimgX, SimgY);
+                        draggingS = false;
                     }
 
-                    sketch.mousePressed = function () {
-                        if (
-                            sketch.mouseX > imgX - img.width / 2 &&
-                            sketch.mouseX < imgX + img.width / 2 &&
-                            sketch.mouseY > imgY - img.height / 2 &&
-                            sketch.mouseY < imgY + img.height / 2
-                        ) {
-                            dragging = true;
-                            offsetX = sketch.mouseX - imgX;
-                            offsetY = sketch.mouseY - imgY;
+                    if (checkD && checkR && checkE && checkA && checkM && checkS && !isPlaying) {
+                        vox.play();
+                        isPlaying = true;
+                        line16 = false;
+                        line16B = true;
+                    }
+                };
+            },
+            function (sketch) {
+                let line1 = false;
+                let line2 = false;
+                let line3 = false;
+                let line4 = false;
+                let line4c = false;
+                let inter = false;
+                let imgX, imgY;
+                let dragging = false;
+                let offsetX, offsetY;
+                let isPlaying = false;
+                const DROP_X = 300;
+                const DROP_Y = 200;
+                const DROP_W = 200;
+                const DROP_H = 200;
+                let sleep;
+
+                sketch.preload = function () {
+                    auto = sketch.loadSound("sketch4/sect 4 auto.mp3");
+                    man = sketch.loadSound("sketch4/sect 4 man.mp3");
+                    special = sketch.loadFont("sketch4/SpecialElite.ttf")
+                    sleeper = sketch.loadImage("assets/sleeper.png")
+                    hat = sketch.loadImage("sketch4/hat.png")
+                     c = sketch.loadImage("sketch1/cursor.png");
+                }
+
+                sketch.setup = function () {
+             
+                    sketch.createCanvas(600, 400);
+                    auto.play();
+                    setTimeout(() => {
+                        line1 = !line1
+                    }, 1000);
+                    setTimeout(() => {
+                        line2 = !line2
+                    }, 3000);
+                    setTimeout(() => {
+                        line3 = !line3
+                    }, 4500);
+                    setTimeout(() => {
+                        line4 = !line4;
+                        inter = !inter;
+                        sleep = !sleep;
+                    }, 6500);
+                    imgX = 70;
+                    imgY = 300;
+                    sketch.imageMode(sketch.CENTER)
+                }
+
+                sketch.draw = function () {
+                    sketch.background(0);
+                    let overDrop = isOverDrop(imgX, imgY);
+                    if (line1) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and i'm lost in the window", 20, 40)
+                    }
+                    if (line2) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and i hide on the stairway", 50, 70)
+                    }
+                    if (line3) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and i hang in the curtain", 80, 100)
+                    }
+                    if (line4) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and i _____ in your hat", 150, 150)
+                    }
+                    if (line4c) {
+                        sketch.fill(255);
+                        sketch.textFont(special);
+                        sketch.textSize(25);
+                        sketch.text("and i sleep in your hat", 150, 150)
+                    }
+                    if (sleep) {
+                        sketch.image(sleeper, imgX, imgY);
+                        sketch.image(hat, DROP_X, DROP_Y + 90);
+                    }
+        
+
+                }
+
+                function isOverDrop(cx, cy) {
+                    return (
+                        cx > DROP_X && cx < DROP_X + DROP_W && cy > DROP_Y && cy < DROP_Y + DROP_H
+                    );
+                }
+
+                sketch.mousePressed = function () {
+
+                    if (
+                        sketch.mouseX > imgX - sleeper.width / 2 &&
+                        sketch.mouseX < imgX + sleeper.width / 2 &&
+                        sketch.mouseY > imgY - sleeper.height / 2 &&
+                        sketch.mouseY < imgY + sleeper.height / 2
+                    ) {
+                        dragging = true;
+                        // Record how far the mouse is from the image center so the image
+                        // doesn't snap its center to the cursor on pickup
+                        offsetX = sketch.mouseX - imgX;
+                        offsetY = sketch.mouseY - imgY;
+                    }
+                }
+
+                sketch.mouseDragged = function () {
+                    if (dragging) {
+                        // Move the image center to follow the mouse, preserving the grab offset
+                        imgX = sketch.mouseX - offsetX;
+                        imgY = sketch.mouseY - offsetY;
+
+                        if (isOverDrop(imgX, imgY) && !isPlaying) {
+                            // Image center just entered the drop zone — start looping the music
+                            man.play();
+                            isPlaying = true;
+                            line4 = !line4
+                            line4c = !line4c
+                            dragging = false;
+                            sleep = !sleep
+
+                        } else if (!isOverDrop(imgX, imgY) && isPlaying) {
+                            // Image center just left the drop zone — stop the music
+                            man.stop();
+                            isPlaying = false;
                         }
-                    };
+                    }
+                }
 
-                    sketch.mouseDragged = function () {
-                        if (dragging) {
-                            imgX = sketch.mouseX - offsetX;
-                            imgY = sketch.mouseY - offsetY;
+                // mouseReleased() fires once when the mouse button is let go
+                sketch.mouseReleased = function () {
+                    dragging = false; // stop tracking the drag regardless of where the image lands
+                }
+            },
+            function (sketch) {
+                let line1, line2, line3, line4, line5, line6, line7, line8, line5c, cry1, cry2, cry3, cry4, cry5,
+                    cry6, line9, line10, line11, line12, line13, line14, line15, line16, line17 = false;
 
-                            if (isOverDrop(imgX, imgY) && !isPlaying) {
-                                sound.play();
-                                isPlaying = true;
-                            } else if (!isOverDrop(imgX, imgY) && isPlaying) {
-                                sound.stop();
-                                isPlaying = false;
-                            }
+                const DROP_X = 140;
+                const DROP_Y = 140;
+                const DROP_W = 100;
+                const DROP_H = 100;
+                let dragging = false;
+                let offsetX, offsetY;
+                let isPlaying = false;
+                let imgX, imgY;
+
+                sketch.preload = function () {
+                    sketch.tear = sketch.loadImage("sketch5/tear-1.png");
+                    sketch.tsound = sketch.loadSound("sketch5/tattoosound.mp3");
+                    sketch.special = sketch.loadFont("sketch5/SpecialElite.ttf");
+                    sketch.sound = sketch.loadSound("sketch5/sect5 auto.mp3");
+                    sketch.vox = sketch.loadSound("sketch5/sect5 man.mp3");
+                    sketch.eye = sketch.loadImage("sketch5/eye-2.png");
+                    sketch.stencil = sketch.loadImage("sketch5/tear stencil-2.png");
+                    sketch.gun = sketch.loadImage("sketch5/tattoo gun-1.png");
+                    sketch.voxc = sketch.loadSound("sketch5/sect 6 auto.mp3");
+                     c = sketch.loadImage("sketch1/cursor.png");
+                };
+
+                sketch.setup = function () {
+                   
+                    sketch.createCanvas(600, 400);
+                    sketch.sound.play();
+
+                    setTimeout(() => {
+                        line1 = !line1;
+                    }, 800);
+                    setTimeout(() => {
+                        line2 = !line2;
+                    }, 4000);
+                    setTimeout(() => {
+                        line3 = !line3;
+                    }, 5200);
+                    setTimeout(() => {
+                        line4 = !line4;
+                    }, 5500);
+                    setTimeout(() => {
+                        line4 = !line4;
+                        line3 = !line3;
+                        line2 = !line2;
+                        line1 = !line1;
+                    }, 7000);
+                    setTimeout(() => {
+                        line5 = !line5;
+                    }, 8000);
+
+                    imgX = 400;
+                    imgY = 200;
+                };
+
+                sketch.draw = function () {
+                    sketch.imageMode(sketch.CENTER);
+                    sketch.background(0);
+
+                    if (line1) {
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("and no one brings anything small", 30, 50);
+                        sketch.text("into a bar around here.", 30, 70);
+                    }
+                    if (line2) {
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("they all started out with", 180, 200);
+                    }
+                    if (line3) {
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("bad", 100, 260);
+                    }
+                    if (line4) {
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("directions.", 150, 270);
+                    }
+                    if (line5) {
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("and the girl behind the counter", 150, 270);
+                        sketch.text("has a __________", 150, 300);
+                        sketch.image(sketch.eye, 110, 90);
+                        sketch.image(sketch.stencil, 180, 150);
+                        sketch.image(sketch.gun, imgX, imgY);
+                    }
+                    if (line5c) {
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("and the girl behind the counter", 150, 270);
+                        sketch.text("has a tattoed tear", 150, 300);
+                        sketch.image(sketch.eye, 110, 90);
+                        sketch.image(sketch.tear, 180, 150);
+                    }
+                    if (line6) {
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("one for every year he's away", 150, 270);
+                        sketch.image(sketch.eye, 110, 90);
+                        sketch.image(sketch.tear, 180, 150);
+                    }
+                    if (line7) {
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("she", 150, 300);
+                    }
+                    if (line8) {
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("said.", 200, 300);
+                    }
+                    if (cry1) {
+                        sketch.image(sketch.tear, 250, 150);
+                    }
+                    if (cry2) {
+                        sketch.image(sketch.tear, 320, 150);
+                    }
+                    if (cry3) {
+                        sketch.image(sketch.tear, 390, 150);
+                    }
+                    if (cry4) {
+                        sketch.image(sketch.tear, 460, 150);
+                    }
+                    if (cry5) {
+                        sketch.image(sketch.tear, 530, 150);
+                    }
+                    if (cry6) {
+                        sketch.image(sketch.tear, 600, 150);
+                    }
+
+                    if (line9) {
+                        sketch.textAlign(sketch.CENTER);
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("such a crumbling beauty.", sketch.width / 2, sketch.height / 2);
+                    }
+                    if (line10) {
+                        sketch.textAlign(sketch.CENTER);
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("ah,", sketch.width / 2, sketch.height / 2 - 30);
+                    }
+                    if (line11) {
+                        sketch.textAlign(sketch.CENTER);
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("there's nothing wrong with her", sketch.width / 2, sketch.height / 2);
+                    }
+                    if (line12) {
+                        sketch.textAlign(sketch.CENTER);
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("that a hundred dollars won't fix.", sketch.width / 2, sketch.height / 2 +
+                            30);
+                    }
+                    if (line13) {
+                        sketch.textAlign(sketch.CENTER);
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("she has that razor sadness", 350, 40);
+                    }
+                    if (line14) {
+                        sketch.textAlign(sketch.CENTER);
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("that only gets worse with the", 350, 70);
+                    }
+                    if (line15) {
+                        sketch.textAlign(sketch.CENTER);
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("clang", 350, 120);
+                    }
+                    if (line16) {
+                        sketch.textAlign(sketch.CENTER);
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("and the thunder", 250, 150);
+                    }
+                    if (line17) {
+                        sketch.textAlign(sketch.CENTER);
+                        sketch.fill(255);
+                        sketch.textSize(25);
+                        sketch.textFont(sketch.special);
+                        sketch.text("of the southern pacific going by.", 300, 300);
+                    }
+                    
+                };
+
+                function isOverDrop(cx, cy) {
+                    return cx > DROP_X && cx < DROP_X + DROP_W &&
+                        cy > DROP_Y && cy < DROP_Y + DROP_H;
+                }
+
+                sketch.mousePressed = function () {
+                    if (
+                        sketch.mouseX > imgX - sketch.gun.width / 2 &&
+                        sketch.mouseX < imgX + sketch.gun.width / 2 &&
+                        sketch.mouseY > imgY - sketch.gun.height / 2 &&
+                        sketch.mouseY < imgY + sketch.gun.height / 2
+                    ) {
+                        dragging = true;
+                        offsetX = sketch.mouseX - imgX;
+                        offsetY = sketch.mouseY - imgY;
+                    }
+                };
+
+                sketch.mouseDragged = function () {
+                    if (dragging) {
+                        imgX = sketch.mouseX - offsetX;
+                        imgY = sketch.mouseY - offsetY;
+                        sketch.tsound.loop();
+
+                        if (isOverDrop(imgX, imgY) && !isPlaying) {
+                            sketch.vox.play();
+                            isPlaying = true;
+                            dragging = false;
+                            line5 = !line5;
+                            line5c = !line5c;
+
+                            setTimeout(() => {
+                                line5c = !line5c;
+                                line6 = !line6;
+                            }, 3500);
+                            setTimeout(() => {
+                                cry1 = !cry1;
+                            }, 4000);
+                            setTimeout(() => {
+                                cry2 = !cry2;
+                            }, 4500);
+                            setTimeout(() => {
+                                cry3 = !cry3;
+                            }, 5000);
+                            setTimeout(() => {
+                                cry4 = !cry4;
+                            }, 5500);
+                            setTimeout(() => {
+                                cry5 = !cry5;
+                            }, 6000);
+                            setTimeout(() => {
+                                cry6 = !cry6;
+                            }, 6500);
+                            setTimeout(() => {
+                                line7 = !line7;
+                            }, 5250);
+                            setTimeout(() => {
+                                line8 = !line8;
+                            }, 5550);
+                            setTimeout(() => {
+                                line6 = !line6;
+                                line7 = !line7;
+                                line8 = !line8;
+                                cry6 = !cry6;
+                                cry5 = !cry5;
+                                cry4 = !cry4;
+                                cry3 = !cry3;
+                                cry2 = !cry2;
+                                cry1 = !cry1;
+                                sketch.voxc.play();
+                            }, 7000);
+                            setTimeout(() => {
+                                line9 = !line9;
+                            }, 7500);
+                            setTimeout(() => {
+                                line9 = !line9;
+                            }, 9000);
+                            setTimeout(() => {
+                                line10 = !line10;
+                            }, 9750);
+                            setTimeout(() => {
+                                line11 = !line11;
+                            }, 10250);
+                            setTimeout(() => {
+                                line12 = !line12;
+                            }, 11250);
+                            setTimeout(() => {
+                                line10 = !line10;
+                                line11 = !line11;
+                                line12 = !line12;
+                            }, 13000);
+                            setTimeout(() => {
+                                line13 = !line13;
+                            }, 14000);
+                            setTimeout(() => {
+                                line14 = !line14;
+                            }, 15500);
+                            setTimeout(() => {
+                                line15 = !line15;
+                            }, 16750);
+                            setTimeout(() => {
+                                line16 = !line16;
+                            }, 17500);
+                            setTimeout(() => {
+                                line17 = !line17;
+                            }, 18500);
+
+                        } else if (!isOverDrop(imgX, imgY) && isPlaying) {
+                            sketch.tsound.stop();
+                            isPlaying = false;
                         }
-                    };
+                    }
+                };
 
-                    sketch.mouseReleased = function () {
-                        dragging = false;
-                    };
-                },
+                sketch.mouseReleased = function () {
+                    dragging = false;
+                    sketch.tsound.stop();
+                };
+            },
+            function (sketch) {
 
-                function (sketch) {
-                    let start1;
-                    let start2;
-                    let start3;
-                    let start4;
-                    let start5;
-                    let isPlaying = false;
-                    let currentImage;
-                    let umbrella;
-                    let deadBird;
-                    let showText = false;
-                    let op;
-                    let hasClicked = false;
-                    let showMoreText = false;
-                    let moreText = false;
-                    let special;
-                    let sound;
-                    let vox;
 
-                    sketch.preload = function () {
-                        special = sketch.loadFont("SpecialElite.ttf");
-                        umbrella = sketch.loadImage("live bird-1.png");
-                        deadBird = sketch.loadImage("dead bird-1.png");
-                        sound = sketch.loadSound("sect2 auto.mp3");
-                        vox = sketch.loadSound("sect2 man.mp3");
-                    };
+                sketch.preload = function () {
+                    sketch.drop = sketch.loadImage("sketch6/tear.png")
+                    sketch.faucet = sketch.loadImage("sketch6/faucet.png")
+                    sketch.special = sketch.loadFont("sketch6/SpecialElite.ttf")
+                    sketch.vox = sketch.loadSound("sketch6/sect 6 man.mp3")
+                    sketch.drip = sketch.loadSound("sketch6/plop.mp3")
+                     c = sketch.loadImage("sketch1/cursor.png");
+                }
 
-                    sketch.setup = function () {
-                        sketch.createCanvas(600, 400);
-                        sketch.imageMode(sketch.CENTER);
-                        sketch.textSize(20);
-                        op = 255;
-                        currentImage = umbrella;
-                        sound.play();
+                sketch.setup = function () {
+                
+                    sketch.createCanvas(600, 400);
+                    sketch.y = 125;
+                    sketch.hasClicked = false;
+                    sketch.fauc = true;
+                    sketch.line1 = true;
+                    sketch.line1b = false;
+                    sketch.line2 = false;
+                    sketch.line3 = false;
+                    sketch.line4 = false;
+                    sketch.line5 = false;
+                    sketch.line6 = false;
+                    sketch.line7 = false;
+                    sketch.line8 = false;
+                }
+
+                sketch.draw = function () {
+                    sketch.background(0);
+
+                    if (sketch.fauc) {
+                        sketch.image(sketch.faucet, 400, 50)
+                    }
+                    if (sketch.drop) {
+                        sketch.image(sketch.drop, 300, sketch.y)
+                    }
+                    if (sketch.line1) {
+                        sketch.fill(255)
+                        sketch.textFont(sketch.special)
+                        sketch.textSize(25)
+                        sketch.text("and the clock ticks out", 50, 250)
+                        sketch.text("like a ________ faucet", 275, 325)
+                    }
+                    if (sketch.line1b) {
+                        sketch.fill(255)
+                        sketch.textFont(sketch.special)
+                        sketch.textSize(25)
+                        sketch.text("and the clock ticks out", 50, 250)
+                        sketch.text("like a dripping faucet", 275, 325)
+                    }
+                    if (sketch.line2) {
+                        sketch.fill(255)
+                        sketch.textFont(sketch.special)
+                        sketch.textSize(25)
+                        sketch.text("til you're full of", 50, 100)
+                    }
+                    if (sketch.line3) {
+                        sketch.fill(255)
+                        sketch.textFont(sketch.special)
+                        sketch.textSize(25)
+                        sketch.text("rag water", 150, 150)
+                    }
+                    if (sketch.line4) {
+                        sketch.fill(255)
+                        sketch.textFont(sketch.special)
+                        sketch.textSize(25)
+                        sketch.text("bitters", 100, 200)
+                    }
+                    if (sketch.line5) {
+                        sketch.fill(255)
+                        sketch.textFont(sketch.special)
+                        sketch.textSize(25)
+                        sketch.text("and blue ruin.", 150, 250)
+                    }
+
+                    if (sketch.line6) {
+                        sketch.fill(255)
+                        sketch.textFont(sketch.special)
+                        sketch.textSize(25)
+                        sketch.text("and you spill out over the side to", 50, 250)
+                        sketch.text("anyone who'll listen.", 50, 280)
+                    }
+                    if (sketch.line7) {
+                        sketch.fill(255)
+                        sketch.textFont(sketch.special)
+                        sketch.textSize(25)
+                        sketch.text("i've seen it all.", 100, 350)
+                    }
+                    if (sketch.line8) {
+                        sketch.fill(255)
+                        sketch.textFont(sketch.special)
+                        sketch.textSize(25)
+                        sketch.text("I've seen it all through", 20, 350)
+                        sketch.text("the yellow windows of the evening train.", 20, 380)
+                    }
+             
+                }
+
+                sketch.mouseClicked = function () {
+                    if (!sketch.hasClicked) {
+                        console.log("This only runs once!");
+                        sketch.line1 = !sketch.line1;
+                        sketch.line1b = !sketch.line1b;
+                        sketch.vox.play()
+                        sketch.drip.play()
+                        sketch.drop = !sketch.drop
                         setTimeout(() => {
-                            start1 = true;
-                        }, 500);
-                        setTimeout(() => {
-                            start2 = true;
+                            sketch.line1b = !sketch.line1b
                         }, 2500);
                         setTimeout(() => {
-                            start3 = true;
+                            sketch.line2 = !sketch.line2
+                        }, 3000);
+                        setTimeout(() => {
+                            sketch.line3 = !sketch.line3
                         }, 4000);
                         setTimeout(() => {
-                            start4 = true;
-                        }, 7000);
+                            sketch.line4 = !sketch.line4
+                        }, 5000);
                         setTimeout(() => {
-                            start5 = true;
-                        }, 2000);
-                    };
-
-                    sketch.draw = function () {
-                        sketch.background(0);
-                        sketch.fill(op);
-                        sketch.textFont(special);
-                        if (start1) {
-                            sketch.text("and the moon's teeth marks", 20, 50);
-                        }
-                        if (start2) {
-                            sketch.text("are on the sky", 40, 70);
-                        }
-                        if (start3) {
-                            sketch.text("like a tarp thrown all over this", 60, 100);
-                        }
-                        if (start4) {
-                            sketch.image(currentImage, 100, 250);
-                        }
-                        if (showText) {
-                            sketch.fill(255);
-                            sketch.textFont(special);
-                            sketch.text("And the broken umbrellas", 20, 50);
-                            sketch.text("like dead birds", 40, 70);
-                        }
-                        if (showMoreText) {
-                            sketch.fill(255);
-                            sketch.textFont(special);
-                            sketch.text("the steam comes out of the grill", 200, 100);
-                        }
-                        if (moreText) {
-                            sketch.fill(255);
-                            sketch.textFont(special);
-                            sketch.text("like the whole goddamned town's ready to blow", 60, 125);
-                        }
-                    };
-
-                    sketch.mouseClicked = function () {
-                        if (!hasClicked) {
-                            if (currentImage === umbrella) {
-                                currentImage = deadBird;
-                            }
-                            op = op === 255 ? 0 : 255;
-                            showText = !showText;
-                            vox.play();
-                            hasClicked = true;
-                            setTimeout(() => {
-                                showMoreText = !showMoreText;
-                            }, 2300);
-                            setTimeout(() => {
-                                moreText = !moreText;
-                            }, 4100);
-                        }
-                    };
+                            sketch.line5 = !sketch.line5
+                        }, 5500);
+                        setTimeout(() => {
+                            sketch.line5 = !sketch.line5
+                            sketch.line4 = !sketch.line4
+                            sketch.line3 = !sketch.line3
+                            sketch.line2 = !sketch.line2
+                        }, 6500);
+                        setTimeout(() => {
+                            sketch.line6 = !sketch.line6
+                        }, 7500);
+                        setTimeout(() => {
+                            sketch.line6 = !sketch.line6
+                            sketch.fauc = !sketch.fauc
+                        }, 11000);
+                        setTimeout(() => {
+                            sketch.line7 = !sketch.line7
+                        }, 12000);
+                        setTimeout(() => {
+                            sketch.line7 = !sketch.line7
+                        }, 13500);
+                        setTimeout(() => {
+                            sketch.line8 = !sketch.line8
+                        }, 15000);
+                    }
                 }
-            ];
+            },
 
-            let currentSketchIndex = 0;
-            let currentSketch;
+        ];
+        let currentSketchIndex = 0;
+        let currentSketch;
 
-            function loadSketch(index) {
-                if (index < 0) index = sketches.length - 1;
-                if (index >= sketches.length) index = 0;
+        function loadSketch(index) {
+            // Wrap around if out of bounds
+            if (index < 0) index = sketches.length - 1;
+            if (index >= sketches.length) index = 0;
 
-                if (currentSketch) {
-                    currentSketch.remove();
-                }
-
-                const container = document.getElementById('sketch-container');
-                currentSketch = new p5(sketches[index], container);
-                currentSketchIndex = index;
+            // Remove previous sketch
+            if (currentSketch) {
+                currentSketch.remove();
             }
 
-            document.getElementById('prevBtn').addEventListener('click', () => {
-                loadSketch(currentSketchIndex - 1);
-            });
+            // Load new sketch
+            const container = document.getElementById('sketch-container');
+            currentSketch = new p5(sketches[index], container);
 
-            document.getElementById('nextBtn').addEventListener('click', () => {
-                loadSketch(currentSketchIndex + 1);
-            });
+            currentSketchIndex = index;
+        }
 
-            loadSketch(currentSketchIndex);
+        document.getElementById('startBtn').addEventListener('click', () => {
+            loadSketch(0);
+        });
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            loadSketch(currentSketchIndex - 1);
+        });
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            loadSketch(currentSketchIndex + 1);
+        });
+        document.getElementById('startBtn').addEventListener('click', () => {
+            document.getElementById('bgMusic').play();
+            loadSketch(0);
+        });
+        document.getElementById('startBtn').addEventListener('click', () => {
+            document.getElementById('sign').classList.add('hidden');
         });
     </script>
 </body>
